@@ -1,0 +1,3 @@
+displayName = Tool Melter
+author = WitherTech
+version = 0.2

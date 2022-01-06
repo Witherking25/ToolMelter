@@ -5,9 +5,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using ToolMelter.ModTiles;
-using System.IO;
-using System.Linq;
 
 namespace ToolMelter.ModItems
 {
@@ -27,8 +24,7 @@ namespace ToolMelter.ModItems
 		{
 			Item.width = 20;
 			Item.height = 20;
-			Item.rare = ItemRarityID.Blue;
-			// Items.Add(ModContent.GetModItem(ModContent.ItemType<ItemCrucible>()).Item);
+			Item.rare = ItemRarityID.Expert;
 		}
 		private void AddItem(Item item)
 		{
@@ -47,18 +43,20 @@ namespace ToolMelter.ModItems
 
 		public override void RightClick(Player player)
 		{
-			foreach (Item item in _items)
+			foreach (var item in _items)
 			{
 				player.QuickSpawnItem(item, item.stack);
 			}
 		}
+		
+		
 
-		public override TagCompound Save()
+		public override void SaveData(TagCompound tag)
 		{
-			return new TagCompound { ["items"] = _items };
+			tag.Set("items", _items, true);
 		}
 
-		public override void Load(TagCompound tag)
+		public override void LoadData(TagCompound tag)
 		{
 			_items = tag.Get<List<Item>>("items");
 		}
@@ -94,10 +92,12 @@ namespace ToolMelter.ModItems
 					{
 						AddItem(ingredient);
 					}
-					CreateRecipe()
-						.AddTile<TileCrucible>()
-						.AddIngredient(recipe.createItem.type, recipe.createItem.stack)
-						.Register();
+					var modRecipe = CreateRecipe().AddIngredient(recipe.createItem.type, recipe.createItem.stack);
+					foreach (var tile in recipe.requiredTile)
+					{
+						modRecipe.AddTile(tile);
+					}
+					modRecipe.Register();
 					
 					ResetItems();
 				}
